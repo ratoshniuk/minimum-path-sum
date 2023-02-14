@@ -7,8 +7,8 @@ object Main extends App {
     file.getLines().toVector.map(_.split(" ").toVector.map(_.toInt))
   }
 
-  def traverseNodes(layers: Vector[Vector[Int]], maximum: Int, level: Int = 0, position: Int = 0, sum: Int = 0): Int = {
-    dictionary.getOrElseUpdate(level -> position, {
+  def traverseNodes(layers: Vector[Vector[Int]], memo: scala.collection.mutable.HashMap[(Int, Int), Int], maximum: Int, level: Int = 0, position: Int = 0, sum: Int = 0): Int = {
+    memo.getOrElseUpdate(level -> position, {
       if (level == maximum) {
         // if there are no leafs and level is lowest -> return current sum, end of recursion
         sum
@@ -17,20 +17,27 @@ object Main extends App {
         val nextSum = sum + layers(level)(position)
         val nextLevel = level + 1
         // calculate sum with each new child
-        val right = traverseNodes(layers, maximum, nextLevel, position, nextSum)
-        val left = traverseNodes(layers, maximum, nextLevel, position + 1, nextSum)
+        val right = traverseNodes(layers, memo, maximum, nextLevel, position, nextSum)
+        val left = traverseNodes(layers, memo, maximum, nextLevel, position + 1, nextSum)
         // looking for minimum sum
         val currentValue = Math.min(right, left)
         // memoization of current state to prevent from re-calculating
-        dictionary.put(level -> position, currentValue)
+        memo.put(level -> position, currentValue)
         currentValue
       }
     })
   }
+
+  def calculateMinimumPath(input: Vector[Vector[Int]]): Int = {
+    val dictionary = scala.collection.mutable.HashMap.empty[Tuple2[Int, Int], Int]
+    traverseNodes(input, dictionary, input.size)
+  }
+
   val input = prepare2dVector()
   val startTime = System.currentTimeMillis()
-  val dictionary = scala.collection.mutable.HashMap.empty[Tuple2[Int, Int], Int]
-  traverseNodes(input, input.size)
+
+  calculateMinimumPath(input)
+
   println(s"elapsed - ${System.currentTimeMillis() - startTime} millis")
 }
 
