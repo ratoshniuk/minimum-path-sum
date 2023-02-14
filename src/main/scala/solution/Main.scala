@@ -11,15 +11,19 @@ object Main extends App {
     if (level == maximum) {
       sum
     } else {
-      // todo: calculate min between sum with each child
-      0
+      val nextSum = sum + layers(level)(position)
+      val nextLevel = level + 1
+      val right = traverseNodes(layers, maximum, nextLevel, position, nextSum)
+      val left = traverseNodes(layers, maximum, nextLevel, position + 1, nextSum)
+      val currentValue = Math.min(right, left)
+      currentValue
     }
   }
 
   val input = prepare2dVector()
   val startTime = System.currentTimeMillis()
 
-  traverseNodes(input, input.size)
+  println(traverseNodes(input, input.size))
   println(s"elapsed - ${System.currentTimeMillis() - startTime} millis")
 }
 
